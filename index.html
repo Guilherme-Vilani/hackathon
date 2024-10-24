@@ -1,19 +1,20 @@
-<h1 style="text-align: center;">CADASTRO MANOEL BONIFACIO</h1>
+<h1 style="text-align: center; font-family: Arial, sans-serif; color: #2c3e50;">Cadastro Manoel Bonifácio</h1>
 
 <div style="display: flex; flex-direction: column; align-items: center;">
-    <input id="nome" style="width: 33%;" placeholder="Digite seu nome...">
+    <input id="nome" style="width: 33%; padding: 10px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px;" placeholder="Digite seu nome...">
+    <input id="telefone" style="width: 33%; padding: 10px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px;" placeholder="Digite seu telefone...">
+    <input id="serie" style="width: 33%; padding: 10px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px;" placeholder="Digite sua série...">
+    <input id="dt_nasc" style="width: 33%; padding: 10px; margin-bottom: 20px; border: 1px solid #bdc3c7; border-radius: 4px;" placeholder="Digite sua data de nascimento...">
+    <button onclick="gerarObj()" style="width: 33%; padding: 10px; background-color: #2980b9; color: white; border: none; border-radius: 4px; cursor: pointer;">
+        Salvar Registro
+    </button>
     <br>
-    <input id="telefone" style="width: 33%;" placeholder="Digite seu telefone...">
-    <br>
-    <input id="serie" style="width: 33%;" placeholder="Digite sua série...">
-    <br>
-    <input id="dt_nasc" style="width: 33%;" placeholder="Digite sua data de nascimento...">
-    <br>
-    <button onclick="gerarObj()" style="width: 33%;">SALVAR REGISTRO</button>
+    <h2 style="color: #34495e; font-family: Arial, sans-serif;">Registros Inseridos:</h2>
+    <ul id="lista-registros" style="list-style-type: none; padding: 0; width: 60%;"></ul>
 </div>
 
 <script>
-    function gerarObj(){
+    async function gerarObj() {
         const nome = document.getElementById('nome').value;
         const telefone = document.getElementById('telefone').value;
         const serie = document.getElementById('serie').value;
@@ -26,6 +27,63 @@
             dt_nasc: dt_nasc
         };
 
-        console.log(registro)
+        console.log(registro);
+
+        // Chamada à API FastAPI para salvar o registro
+        try {
+            const response = await fetch("http://localhost:8000/inserir-dados", {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(registro)
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                alert(data.message);
+                listarRegistros(); // Atualiza a lista após inserir um novo registro
+            } else {
+                alert("Erro ao inserir registro!");
+            }
+        } catch (error) {
+            console.error("Erro:", error);
+            alert("Erro ao conectar com a API!");
+        }
     }
+
+    // Função para listar os registros da API
+    async function listarRegistros() {
+        try {
+            const response = await fetch("http://localhost:8000/listar-dados");
+            if (response.ok) {
+                const registros = await response.json();
+                const lista = document.getElementById('lista-registros');
+                lista.innerHTML = ""; // Limpa a lista antes de atualizar
+
+                registros.forEach((registro, index) => {
+                    const item = document.createElement('li');
+                    item.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; background-color: ${index % 2 === 0 ? '#ecf0f1' : '#d0dce3'}; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <div>
+                                <strong>Nome:</strong> ${registro.nome} <br>
+                                <strong>Telefone:</strong> ${registro.telefone} <br>
+                                <strong>Série:</strong> ${registro.serie} <br>
+                                <strong>Data de Nascimento:</strong> ${registro.dt_nasc}
+                            </div>
+                        </div>
+                    `;
+                    lista.appendChild(item);
+                });
+            } else {
+                alert("Erro ao listar registros!");
+            }
+        } catch (error) {
+            console.error("Erro ao listar registros:", error);
+            alert("Erro ao conectar com a API!");
+        }
+    }
+
+    // Carregar a lista de registros quando a página carregar
+    window.onload = listarRegistros;
 </script>
