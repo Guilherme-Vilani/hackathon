@@ -1,0 +1,14 @@
+# 1º VERIFICAR SE O PYTHON ESTÁ INSTALADO NA MAQUINA #
+
+# 2º PARA COMECAR A API COM FASTAPI PRECISA INSTALAR O PACOTE DO FASTAPI #
+
+pip install fastapi
+pip install uvicorn
+
+# 3º PARA RODAR A API EXECUTAR O COMANDO ABAIXO #
+
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+# 4º PARA ACESSAR O SWAGGER DA API ENTRE NA URL ABAIXO #
+
+https://localhost:8000/docs
